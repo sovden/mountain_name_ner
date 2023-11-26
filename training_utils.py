@@ -20,7 +20,7 @@ def compute_metrics(predictions, label_list):
         "precision": precision_score(true_labels, true_predictions),
         "recall": recall_score(true_labels, true_predictions),
         "f1": f1_score(true_labels, true_predictions),
-        "classification_report": classification_report(true_labels, true_predictions),
+        # "classification_report": classification_report(true_labels, true_predictions),
     }
 
 
