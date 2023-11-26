@@ -34,7 +34,7 @@ data_preparation/assamble_raw_data.ipynb makes all work. Main steps:
 > It turned out that a lot of mountains have name of format MOUNT %FAMOUS LOCATION% (i.e. MOUNT WASHINGTON), while some other names are equally often used with and without word MOUNT (EVEREST/MOUNT EVETEST). In this task, it was decided manualy define list of names with mandotary word MOUNT to avoid confusing, while for every other delete this prefix.
 5. Text cleaning steps:
 - str.strip()
-- symbols_to_replace = [["Ã¼","u"], ["Ã¶", "o"],["â€“","-"],["Ã©","e"], ["Ã³","o"], ["Â°","*"]]
+- symbols_to_replace = ```[["Ã¼","u"], ["Ã¶", "o"],["â€“","-"],["Ã©","e"], ["Ã³","o"], ["Â°","*"]]```
 - clean everything in brackets (Wikipedia and science texts have a lot of them and mostly it just some footnotes or some unuseful details.
 - lower all text for simplicity
 - stemming and lemmatization were avoided 
