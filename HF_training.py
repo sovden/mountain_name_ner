@@ -58,7 +58,7 @@ def run_training(is_colab=False,
         args=training_args,
         train_dataset=tokenized_datasets["train"],
         eval_dataset=tokenized_datasets["validation"],
-        data_collator=data_collator,
+        data_collator=functools.partial(data_collator, tokenizer=formatted_data.label_list),
         tokenizer=tokenizer,
         compute_metrics=functools.partial(compute_metrics, label_list=formatted_data.label_list),
     )
