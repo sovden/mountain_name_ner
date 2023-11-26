@@ -47,8 +47,8 @@ def run_training(is_colab=False,
     else:
         datasets_custom, label_list = create_datasets(is_colab)
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForTokenClassification.from_pretrained(model_name, num_labels=len(label_list))
+    tokenizer = AutoTokenizer.from_pretrained(model_name, ignore_mismatched_sizes=True)
+    model = AutoModelForTokenClassification.from_pretrained(model_name, num_labels=len(label_list), ignore_mismatched_sizes=True)
 
     tokenized_datasets = datasets_custom.map(functools.partial(tokenize_and_align_labels, tokenizer=tokenizer), batched=True)
 
@@ -56,7 +56,6 @@ def run_training(is_colab=False,
         output_dir=f"./results/{save_name}",
         evaluation_strategy="steps",
         eval_steps=200,
-        save_steps=200,
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=4,
         per_device_eval_batch_size=4,
