@@ -5,9 +5,9 @@ conll2003 ner dataset was used as reference (and for saturation/diversity of cus
 2. Parse internet and generate sentences (using created list).
 3. Preprocess collected data (clean, lower, etc). Split into sentences.
 4. Take only sentences with mountain name from created list (taking that one without is dangerous, because it could be mistake of automatic searching and sentece actualy does have mountain name and if we take this sentence we just label it as without entity one)
-5. Split sentences into words, label each word with ner-tag. Handle 2+ words names. 'O' - non mountain, 'B-MON' - first part of 2+ words mountain name, 'I-MON' - 1 word mountain name or non first parts of 2+ words mountain names.
+5. Split sentences into words, label each word with ner-tag. Handle 2+ words names. **'O'** - non mountain, **'B-MON'** - first part of 2+ words mountain name, **'I-MON'** - 1 word mountain name or non first parts of 2+ words mountain names.
 6. Format sentences like conll2003 dataset ```clean_data/dataset_mountains.txt```. Create csv table for easy analysis ```clean_data/dataset_mountains.csv```.
-7. Before training, add examples without entity name from the conll2003 dataset. This dataset almost doesn't contain mountain names. For simplicity, just part of this data were used and relabeled with 'O'. Proportion original_data/conll2003 1:2 or 1:3 (could be modified during training).
+7. Before training, add examples without entity name from the conll2003 dataset. This dataset almost doesn't contain mountain names. For simplicity, just part of this data were used and relabeled with **'O'**. Proportion original_data/conll2003 1:2 or 1:3 (could be modified during training).
 8. Previous point could be considered as augumentaion step. In this case code should be changed, becuase test set is generated from the custom data + conll2003 as well as train set. However, it was decided that this is not augumentaion step, because conll2003 is not something generated from original data, but original itself. 
 
 ## Raw data (collected data):
@@ -30,9 +30,15 @@ Science text was copied manualy from pdf book as well as chat gpt generation.
 ## Data Preparation:
 data_preparation/assamble_raw_data.ipynb makes all work. Main steps:
 1. One example = one sentence
-2. Clean all everything in brackets (Wikipedia and science texts have a lot of them and mostly it just some footnotes or some unuseful details.
-3. Lower all text for simplicity
-4. 
+4. Mountain list cleaning.
+> It turned out that a lot of mountains have name of format MOUNT %FAMOUS LOCATION% (i.e. MOUNT WASHINGTON), while some other names are equally often used with and without word MOUNT (EVEREST/MOUNT EVETEST). In this task, it was decided manualy define list of names with mandotary word MOUNT to avoid confusing, while for every other delete this prefix.
+5. Text cleaning steps:
+- str.strip()
+- symbols_to_replace = [["Ã¼","u"], ["Ã¶", "o"],["â€“","-"],["Ã©","e"], ["Ã³","o"], ["Â°","*"]]
+- clean everything in brackets (Wikipedia and science texts have a lot of them and mostly it just some footnotes or some unuseful details.
+- lower all text for simplicity
+- stemming and lemmatization were avoided 
+7.
 
 # For training on colab you need to run next 3 cells or just use notebook (https://github.com/sovden/mountain_name_ner/blob/master/colab_training.ipynb):
 1. run additional packages cell:
@@ -73,7 +79,20 @@ os.rmdir(source_dir)
 ```
 from HF_training import run_training
 ```
-
-
-
-   
+## Example of simple model choosing:
+It could be considered as some kind of Grid Search. Certainly, it should be rewrited with using some Bayesian Search or other optimization algorithm using **Optuna** package, for example:
+```
+for model_name in ["albert-base-v2", "bert-base-cased", "dslim/bert-base-NER", "Jorgeutd/albert-base-v2-finetuned-ner"]:
+  model_iteration = 0
+  for learning_rate in [3e-5, 5e-5, 8e-5]:
+    for epoch_num in [1, 2]:
+      save_name = f"{model_name}_{model_iteration}"
+      run_training(is_colab=True,
+                   save_name=save_name,
+                   model_name=model_name,
+                   num_train_epochs=epoch_num,
+                   learning_rate=learning_rate,
+                   dataset_params=(datasets, label_list))
+      
+      model_iteration += 1
+```
