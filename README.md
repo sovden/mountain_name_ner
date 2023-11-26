@@ -30,16 +30,20 @@ Science text was copied manualy from pdf book as well as chat gpt generation.
 ## Data Preparation:
 data_preparation/assamble_raw_data.ipynb makes all work. Main steps:
 1. One example = one sentence
-4. Mountain list cleaning.
+4. Mountain list cleaning. Shorting of mountain names:
 > It turned out that a lot of mountains have name of format MOUNT %FAMOUS LOCATION% (i.e. MOUNT WASHINGTON), while some other names are equally often used with and without word MOUNT (EVEREST/MOUNT EVETEST). In this task, it was decided manualy define list of names with mandotary word MOUNT to avoid confusing, while for every other delete this prefix.
 5. Text cleaning steps:
-- str.strip()
-- ```symbols_to_replace = [["Ã¼","u"], ["Ã¶", "o"],["â€“","-"],["Ã©","e"], ["Ã³","o"], ["Â°","*"]]```
-- clean everything in brackets (Wikipedia and science texts have a lot of them and mostly it just some footnotes or some unuseful details.
-- lower all text for simplicity
-- stemming and lemmatization were avoided 
-7.
-
+- str.strip();
+- ```symbols_to_replace = [["Ã¼","u"], ["Ã¶", "o"],["â€“","-"],["Ã©","e"], ["Ã³","o"], ["Â°","*"]]```;
+- clean everything in brackets (Wikipedia and science texts have a lot of them and mostly it just some footnotes or some unuseful details;
+- lower all text for simplicity;
+- stemming and lemmatization were avoided because conll2003 dataset looks quite raw in these terms;
+6. Filter all sentences with less than 25 chars minus length of mountain name (based on histogram):
+- ![image](https://github.com/sovden/mountain_name_ner/assets/152089125/0efef3f7-331f-4952-8075-64b606ed65e4)
+7. Tag creation. For each word in sentence: **'O'** - non mountain, **'B-MON'** - first part of 2+ words mountain name, **'I-MON'** - 1 word mountain name or non first parts of 2+ words mountain names.
+8. Check data for consistency (number of tags = number of words; 2+ words names = 2+ tags 
+9. Save data in conll2003 dataset format.
+  
 # For training on colab you need to run next 3 cells or just use notebook (https://github.com/sovden/mountain_name_ner/blob/master/colab_training.ipynb):
 1. run additional packages cell:
 ```
