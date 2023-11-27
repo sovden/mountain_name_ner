@@ -62,7 +62,7 @@ After a few training with different parameters ```albert-base-v2``` with uncased
 2. If enough time and resources - run hyperparameter tunnning.
 3. Rewrite training using Pytorch/PytochLightning (initialize HF model with nn.Module).
 # Inference:
-For Inference and playing with model you need to install transformers lib. You can use inference.py or notebook inference.ipynb
+For Inference and playing with model you need to install transformers lib. You can use ```inference_util.py``` or notebook ```inference.ipynb```.
 ### Examples:
 - input: ```"flying over Africa we saw how the top of Naki looks above the clouds"```
 - output: ```Named Entities ['nak', 'i']```
