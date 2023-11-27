@@ -46,17 +46,37 @@ data_preparation/assamble_raw_data.ipynb makes all work. Main steps:
 8. Check data for consistency (number of tags = number of words; 2+ words names = 2+ tags 
 9. Save data in conll2003 dataset format.
 
+### Possible improvements:
+1. Improve logic of mountain name shorting, try to avoid list with exclusions.
+2. Add **'E-MON'** end tag for long name mountains
+3. Create clean Test dataset
+4. Add some kind of Augmentation
+
 # Training:
 ### Code:
 ```run_training``` from the ```HF_training.py``` provides possibility to run training of one model. Playing with arguments (adding new as well as changing) provide possibility to perform hyperparameter tuning. Currently implemented: pretrained ```model_name``` from HF hub, ```num_of_epochs```, ```lerning_rate```, type of HF ```sheduler```
 ### Results:
-After a few training with different parameters ```Albert-v2``` looks like one of the best. Preptrained checkpoint could be found here ```path```
-### Inference:
+After a few training with different parameters ```albert-base-v2``` with uncased dataset looks like one of the best. Probably small uncased model performs the best becaus of small dataset. Preptrained checkpoint could be found here ```chekpoints_to_upload/albert-base-v2/best_checkpoint```
+### Possible Improvements:
+1. Try some ner pretrained models.
+2. If enough time and resources - run hyperparameter tunnning.
+3. Rewrite training using Pytorch/PytochLightning (initialize HF model with nn.Module).
+# Inference:
 For Inference and playing with model you need to install transformers lib. You can use inference.py or notebook inference.ipynb
 ### Examples:
 - input: ```"flying over Africa we saw how the top of Naki looks above the clouds"```
 - output: ```Named Entities ['nak', 'i']```
-# For training on colab you need to run next 3 cells or just use notebook (https://github.com/sovden/mountain_name_ner/blob/master/colab_training.ipynb):
+### Possible improvements:
+1. Implement function that will identify word, not tokens: Named Entities ```['Naki']```.
+2. Implement simple API (flask?) for playing with model.
+# Local run
+## training:
+You can just use ```local_training.py``` playing with arguments of dataset and training
+## inference:
+Inference is based on the ```inference_util.py``` 
+> **!!!** if You use cased model for inference, initialize pretrained model with ```start_model = PrepareModel(is_lower_text: bool = True)``` **!!!**
+# Colab
+## training on colab you need to run next 3 cells or just use notebook (https://github.com/sovden/mountain_name_ner/blob/master/colab_training.ipynb):
 1. run additional packages cell:
 ```
 !pip install transformers[torch]
@@ -111,4 +131,13 @@ for model_name in ["albert-base-v2", "bert-base-cased", "dslim/bert-base-NER", "
                    dataset_params=(datasets, label_list))
       
       model_iteration += 1
+```
+## Inference
+```
+from inference_util import PrepareModel
+
+start_model = PrepareModel(is_colab=True, is_lower_text=True)
+start_model.predict_entity("our module landed at the foot of Arutaruki")
+start_model.predict_entity("we tried to climb Hoverla where we saw top of Pip Ivan")
+start_model.predict_entity("The scientist Marie Curie won the Nobel Prize in Physics and Chemistry.")
 ```
