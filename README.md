@@ -56,7 +56,7 @@ data_preparation/assamble_raw_data.ipynb makes all work. Main steps:
 ### Code:
 ```run_training``` from the ```HF_training.py``` provides possibility to run training of one model. Playing with arguments (adding new as well as changing) provide possibility to perform hyperparameter tuning. Currently implemented: pretrained ```model_name``` from HF hub, ```num_of_epochs```, ```lerning_rate```, type of HF ```sheduler```
 ### Results:
-After a few training with different parameters ```albert-base-v2``` with uncased dataset looks like one of the best. Probably small uncased model performs the best becaus of small dataset. Preptrained checkpoint could be found here ```chekpoints_to_upload/albert-base-v2/best_checkpoint```
+After a few training with different parameters, ```albert-base-v2``` with uncased dataset looks like one of the best. Probably small uncased model performs the best because of small dataset. Preptrained checkpoint could be found here ```chekpoints_to_upload/albert-base-v2/best_checkpoint```
 ### Possible Improvements:
 1. Try some ner pretrained models.
 2. If enough time and resources - run hyperparameter tunnning.
