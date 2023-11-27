@@ -1,0 +1,4 @@
+transformers==4.35.2
+datasets==2.15.0
+seqeval==1.2.2
+bs4==0.0.1
