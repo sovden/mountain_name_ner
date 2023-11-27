@@ -47,9 +47,15 @@ data_preparation/assamble_raw_data.ipynb makes all work. Main steps:
 9. Save data in conll2003 dataset format.
 
 # Training:
-# Inference:
-## Examples:
-  
+### Code:
+```run_training``` from the ```HF_training.py``` provides possibility to run training of one model. Playing with arguments (adding new as well as changing) provide possibility to perform hyperparameter tuning. Currently implemented: pretrained ```model_name``` from HF hub, ```num_of_epochs```, ```lerning_rate```, type of HF ```sheduler```
+### Results:
+After a few training with different parameters ```Albert-v2``` looks like one of the best. Preptrained checkpoint could be found here ```path```
+### Inference:
+For Inference and playing with model you need to install transformers lib. You can use inference.py or notebook inference.ipynb
+### Examples:
+- input: ```"flying over Africa we saw how the top of Naki looks above the clouds"```
+- output: ```Named Entities ['nak', 'i']```
 # For training on colab you need to run next 3 cells or just use notebook (https://github.com/sovden/mountain_name_ner/blob/master/colab_training.ipynb):
 1. run additional packages cell:
 ```
