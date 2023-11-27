@@ -29,20 +29,20 @@ def check_data_for_consistency(formatted_data: dict) -> None:
 
 
 class GetFormattedData:
-    def __init__(self, is_colab: bool = False):
+    def __init__(self, is_colab: bool = False, is_lower_text: bool = True):
         if is_colab:
             root_dir = "/content/data_preparation/"
         else:
             root_dir = ""
 
-        self.conll_train = os.path.join(root_dir, "clean_data/conll2003/eng.train")
-        self.dataset_mountain_path = os.path.join(root_dir, "clean_data/dataset_mountains.txt")
+        self.conll_train = os.path.join(root_dir, "data_preparation/clean_data/conll2003/eng.train")
+        self.dataset_mountain_path = os.path.join(root_dir, "data_preparation/clean_data/dataset_mountains.txt")
+        self.is_lower_text = is_lower_text
 
         self.label_list = None
         self.label_map = None
 
-    @staticmethod
-    def formate_conll_data_for_adding(data: list) -> dict:
+    def formate_conll_data_for_adding(self, data: list) -> dict:
         """
     Create {"tokens": [], "ner_tags": []} based on the conll2003 like raw data,
     where all ner_tags ~ 'O' (no entity)
@@ -51,19 +51,23 @@ class GetFormattedData:
     :return:  {"tokens": [], "ner_tags": []}
     """
         formatted_data = {"tokens": [], "ner_tags": []}
+        punctuation = "#$%&'()*+, -./:;<=>?@[\]^_`{|}~"
+        # For this task we clean all punctuation in conll dataset
         for sentence in data:
-            tokens = [token_data[0].lower() for token_data in sentence]
+            if self.is_lower_text:
+                tokens = [token_data[0].lower() for token_data in sentence if token_data[0] not in punctuation]
+            else:
+                tokens = [token_data[0] for token_data in sentence if token_data[0] not in punctuation]
             # 2 is 'O' tag in NER mountain training
             # since this dataset almost doesn't contain mountain entities
             # we make all tokens 'O'
-            ner_tags = [2] * len(sentence)
+            ner_tags = [2] * len(tokens)
             formatted_data["tokens"].append(tokens)
             formatted_data["ner_tags"].append(ner_tags)
 
         return formatted_data
 
-    @staticmethod
-    def formate_raw_data_txt(raw_data: list, label_map: dict) -> dict:
+    def formate_raw_data_txt(self, raw_data: list, label_map: dict) -> dict:
         """
     Create {"tokens": [], "ner_tags": []} based on the conll2003 like raw data
 
@@ -73,7 +77,11 @@ class GetFormattedData:
     """
         formatted_custom_data = {"tokens": [], "ner_tags": []}
         for sentence in raw_data:
-            tokens = [token_data[0].lower() for token_data in sentence]
+            if self.is_lower_text:
+                tokens = [token_data[0].lower() for token_data in sentence]
+            else:
+                tokens = [token_data[0] for token_data in sentence]
+
             ner_tags = [label_map[token_data[1]] for token_data in sentence]
             formatted_custom_data["tokens"].append(tokens)
             formatted_custom_data["ner_tags"].append(ner_tags)
@@ -86,7 +94,7 @@ class GetFormattedData:
 
         return formatted_data
 
-    def get_split_formatted_data(self, improve_with_conll: int = 2, train_proportion: float = 0.7):
+    def get_split_formatted_data(self, improve_with_conll: float = 2.5, train_proportion: float = 0.8):
         """
     Create train_set_dict, val_set_dict, test_set_dict in {"tokens": [], "ner_tags": []} format each
 
@@ -103,22 +111,24 @@ class GetFormattedData:
         self.label_map = {label: i for i, label in enumerate(self.label_list)}
 
         formatted_data = self.formate_raw_data_txt(raw_data, self.label_map)
-        data_size = len(formatted_data['tokens'])
 
         if improve_with_conll > 0:
             formatted_data = self.add_conll_data(formatted_data, improve_with_conll)
 
+        check_data_for_consistency(formatted_data)
+
+        data_size = len(formatted_data['tokens'])
         val_part = int((1 - train_proportion) * data_size)
         train_set_dict, val_set_dict = self.create_test_set(formatted_data, val_part)
 
         # FIXME: hardcode proportion
-        # for simplicity assume that validation/test set have proportion 60/40
-        test_part = int(val_part * 0.4)
+        # for simplicity assume that validation/test set have proportion 55/45
+        test_part = int(val_part * 0.45)
         val_set_dict, test_set_dict = self.create_test_set(val_set_dict, test_part)
 
         return train_set_dict, val_set_dict, test_set_dict
 
-    def add_conll_data(self, formatted_data: dict, improve_with_conll: int) -> dict:
+    def add_conll_data(self, formatted_data: dict, improve_with_conll: float) -> dict:
         """
     Add part of conll2003 data set to the original data for diversity
 
@@ -136,9 +146,11 @@ class GetFormattedData:
 
         print(f"dataset size after before conll: {data_size}")
 
+        end_of_sample = int(data_size * improve_with_conll) + 100
+
         # FIXME: add random with reproducibility
-        formatted_data["tokens"].extend(conll_tokens[100:data_size * improve_with_conll])
-        formatted_data["ner_tags"].extend(conll_tags[100:data_size * improve_with_conll])
+        formatted_data["tokens"].extend(conll_tokens[100:end_of_sample])
+        formatted_data["ner_tags"].extend(conll_tags[100:end_of_sample])
 
         print(f"dataset size after adding conll: {len(formatted_data['tokens'])}")
 

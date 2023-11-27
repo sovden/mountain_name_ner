@@ -6,13 +6,22 @@ import functools
 from data_preparation.data_preparation import GetFormattedData, check_data_for_consistency
 from training_utils import data_collator, compute_metrics, tokenize_and_align_labels
 
-def create_datasets(is_colab=False):
-    formatted_data = GetFormattedData(is_colab=is_colab)
+import torch
+is_cuda = torch.cuda.is_available()
+if is_cuda:
+  print("CUDA avaliable:", is_cuda)
+  print("Current device index:", torch.cuda.current_device())
+  print("Device name:", torch.cuda.get_device_name(torch.cuda.current_device()))
+else:
+  print("CUDA avaliable:", is_cuda)
+
+def create_datasets(is_colab=False, is_lower_text = False):
+    formatted_data = GetFormattedData(is_colab=is_colab, is_lower_text=is_lower_text)
     train_set_dict, val_set_dict, test_set_dict = formatted_data.get_split_formatted_data()
 
-    check_data_for_consistency(train_set_dict)
-    check_data_for_consistency(val_set_dict)
-    check_data_for_consistency(test_set_dict)
+    print(f"train set size: {len(train_set_dict['tokens'])}; ",
+          f"val set size: {len(val_set_dict['tokens'])}; ",
+          f"test set size: {len(test_set_dict['tokens'])}")
 
     train_dataset_custom = Dataset.from_dict(train_set_dict)
     val_dataset_custom = Dataset.from_dict(val_set_dict)
@@ -56,6 +65,7 @@ def run_training(is_colab=False,
         output_dir=f"./results/{save_name}",
         evaluation_strategy="steps",
         eval_steps=200,
+        save_steps=200,
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=4,
         per_device_eval_batch_size=4,
