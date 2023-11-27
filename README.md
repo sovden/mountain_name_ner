@@ -1,4 +1,6 @@
 # mountain_name_ner
+# About
+Repository for solving NER task for mountain entity ("Last year I climbed on Hoverla and it was fun" -> Hoverla - mountain). Training was done with Hugging Face transformers lib. 
 # Dataset:
 conll2003 ner dataset was used as reference (and for saturation/diversity of custom dataset) https://www.kaggle.com/datasets/juliangarratt/conll2003-dataset. Main idea of creation of dataset is next:
 1. Create list of all mountains on earth.
@@ -38,12 +40,22 @@ data_preparation/assamble_raw_data.ipynb makes all work. Main steps:
 - clean everything in brackets (Wikipedia and science texts have a lot of them and mostly it just some footnotes or some unuseful details;
 - lower all text for simplicity;
 - stemming and lemmatization were avoided because conll2003 dataset looks quite raw in these terms;
-6. Filter all sentences with less than 25 chars minus length of mountain name (based on histogram):
+6. Filter all sentences with less than 25 chars minus length of mountain name (based on histogram for less than 400 chars sentences):
 - ![image](https://github.com/sovden/mountain_name_ner/assets/152089125/0efef3f7-331f-4952-8075-64b606ed65e4)
 7. Tag creation. For each word in sentence: **'O'** - non mountain, **'B-MON'** - first part of 2+ words mountain name, **'I-MON'** - 1 word mountain name or non first parts of 2+ words mountain names.
 8. Check data for consistency (number of tags = number of words; 2+ words names = 2+ tags 
 9. Save data in conll2003 dataset format.
-  
+
+# Training:
+### Code:
+```run_training``` from the ```HF_training.py``` provides possibility to run training of one model. Playing with arguments (adding new as well as changing) provide possibility to perform hyperparameter tuning. Currently implemented: pretrained ```model_name``` from HF hub, ```num_of_epochs```, ```lerning_rate```, type of HF ```sheduler```
+### Results:
+After a few training with different parameters ```Albert-v2``` looks like one of the best. Preptrained checkpoint could be found here ```path```
+### Inference:
+For Inference and playing with model you need to install transformers lib. You can use inference.py or notebook inference.ipynb
+### Examples:
+- input: ```"flying over Africa we saw how the top of Naki looks above the clouds"```
+- output: ```Named Entities ['nak', 'i']```
 # For training on colab you need to run next 3 cells or just use notebook (https://github.com/sovden/mountain_name_ner/blob/master/colab_training.ipynb):
 1. run additional packages cell:
 ```
